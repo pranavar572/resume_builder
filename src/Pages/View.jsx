@@ -5,7 +5,7 @@ import { IoMdRefreshCircle } from "react-icons/io";
 import { Link, useParams } from 'react-router-dom';
 import Edit from '../Components/Edit'
 import Preview from '../Components/Preview';
-import { viewResumeApi } from '../service/apiService';
+import { downloadResumeApi, viewResumeApi } from '../service/apiService';
 import { useEffect } from 'react';
 import { jsPDF } from "jspdf";
 import html2canvas from 'html2canvas';
@@ -42,18 +42,28 @@ function View() {
       })
       const serverData =await result.json()
       const url = serverData.secure_url
-      console.log(url);
+      generatePDF(url);
       
     })
   }
-  const generatePDF =async () => {
+  const generatePDF =async (resumeImg) => {
    
     const pdf = new jsPDF()
     
     const imageWidth=pdf.internal.pageSize.getWidth()
     const imageHeight=pdf.internal.pageSize.getHeight()
-    pdf.addImage(canvas,"PNG",0,0,imageWidth,imageHeight)
-    pdf.save("resume.pdf")
+    pdf.addImage(resumeImg,"PNG",0,0,imageWidth,imageHeight)
+     const today=new Date()
+     const timeStamp=`${today.toLocaleDateString()},${today.toLocaleTimeString()}`
+     console.log(timeStamp);
+
+     const result=await downloadResumeApi({timeStamp,resumeImg,resumeId:resume.id,jobRole:resume.job})
+     if(result.status===201){
+      pdf.save(`$(resume.fullName)CV.pdf`)
+     }
+     
+     
+    // pdf.save("resume.pdf")
   }
   return (
     <div className='container my-5'>

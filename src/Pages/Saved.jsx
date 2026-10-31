@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import React, { useState, useEffect, useMemo } from 'react'
-import { FaRegTrashAlt } from "react-icons/fa";
+import { FaBackward, FaForward, FaRegTrashAlt } from "react-icons/fa";
 import { deleteAllResumeApi, getAllResumeApi } from '../service/apiService';
 import { FaSearch } from "react-icons/fa";
 
@@ -9,7 +9,15 @@ function Saved() {
   const [allResumes, setAllResumes] = useState([])
   const [searchKey,setSearchKey]=useState("")
   const[dummyAllResumes,setDummyAllResumes]=useState([])
-  console.log(allResumes);
+  // console.log(allResumes);
+
+  const [currentPage,setCurrentPage]=useState(1)
+  const rowPerPage=4
+  const lastIndexofCurrentPage=currentPage * rowPerPage
+  const firstIndexofCurrentPage= lastIndexofCurrentPage - rowPerPage
+  const currentResumes=allResumes.slice(firstIndexofCurrentPage,lastIndexofCurrentPage)
+  const totalPages=Math.ceil(allResumes.length/rowPerPage)
+
 
   useEffect(() => {
     getAllResume()
@@ -55,8 +63,8 @@ function Saved() {
         </thead>
         <tbody>
           {
-            allResumes?.length > 0 ?
-              allResumes?.map((resume, index) => (
+            currentResumes?.length > 0 ?
+              currentResumes?.map((resume, index) => (
                 <tr key={resume?.id}>
                   <td>{index + 1}</td>
                   <td>
@@ -79,6 +87,18 @@ function Saved() {
           }
         </tbody>
       </table>
+      <div className='d-flex align-items-center'>
+        <button className='btn' onClick={()=>setCurrentPage(currentPage-1)} disabled={currentPage==1}>
+          <FaBackward/>
+
+        </button>
+        {currentPage} of {totalPages}
+        <button className='btn' onClick={()=>setCurrentPage(currentPage+1)} disabled={currentPage==totalPages || totalPages==0}>
+          <FaForward/>
+
+        </button>
+
+      </div>
     </div>
   )
 }
